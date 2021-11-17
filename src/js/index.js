@@ -5,10 +5,6 @@
  * @version 1.1.0
  */
 
-import './components/my-hello/index.js'
-
-const messageContainer = document.querySelector('#messageContainer')
-const message = document.createTextNode('Hi from an ECMAScript Module.')
-messageContainer.appendChild(message)
+import './components/quiz-question/quiz-question.js'
 
 // TODO: This is just some example code that you are free to use, modify or completely delete.
