@@ -2,11 +2,13 @@
 
 const template = document.createElement('template')
 template.innerHTML = `
-
+<div id="container">
 <h2 id="messageH2"></h2>
 <h2 id="questionH2"></h2>
 <input id="questInput" type="text">
 <button>Submit Answer</button>
+
+</div>
 
 `
 
@@ -26,6 +28,7 @@ customElements.define('quiz-question',
       this.quest = this.shadowRoot.querySelector('#questionH2')
       this.message = this.shadowRoot.querySelector('#messageH2')
       this.input = this.shadowRoot.querySelector('#questInput')
+      this.container = this.shadowRoot.querySelector('#container')
     }
 
     async getQuestion () {
@@ -34,6 +37,25 @@ customElements.define('quiz-question',
       console.log(respObj)
       this.quest.innerText = respObj.question
       this.nextURL = respObj.nextURL
+
+      if (respObj.alternatives) {
+        this.input.style.display = 'none'
+        this.button.style.display = 'none'
+        const radioSubmitButton = document.createElement('button')
+        radioSubmitButton.innerText = 'submit Answer'
+        this.container.appendChild(radioSubmitButton)
+
+        for (const key in respObj.alternatives) {
+          const radiobox = document.createElement('input')
+          radiobox.type = 'radio'
+          radiobox.name = 'answer'
+          radiobox.value = respObj.alternatives.key
+          this.container.appendChild(radiobox)
+          const label = document.createElement('label')
+          label.innerText = respObj.alternatives[key]
+          this.container.appendChild(label)
+        }
+      }
     }
 
     async sendAnswer (theAnswer) {
