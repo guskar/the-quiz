@@ -3,11 +3,12 @@
 const template = document.createElement('template')
 template.innerHTML = `
 <div id="container">
-<h2 id="messageH2"></h2>
-<h2 id="questionH2"></h2>
-<input id="questInput" type="text">
-<button>Submit Answer</button>
 
+  <h2 id="messageH2"></h2>
+  <h2 id="questionH2"></h2>
+  <input id="questInput" type="text">
+  <button>Submit Answer</button>
+  <div id = "questionButtons"></div>
 </div>
 
 `
@@ -29,6 +30,8 @@ customElements.define('quiz-question',
       this.message = this.shadowRoot.querySelector('#messageH2')
       this.input = this.shadowRoot.querySelector('#questInput')
       this.container = this.shadowRoot.querySelector('#container')
+      this.form = this.shadowRoot.querySelector('form')
+      this.questionButtons = this.shadowRoot.querySelector('#questionButtons')
     }
 
     async getQuestion () {
@@ -37,23 +40,22 @@ customElements.define('quiz-question',
       console.log(respObj)
       this.quest.innerText = respObj.question
       this.nextURL = respObj.nextURL
+      this.input.style.display = 'block'
+      this.button.style.display = 'block'
+      this.questionButtons.innerHTML = ''
+      this.input.value = ''
 
       if (respObj.alternatives) {
         this.input.style.display = 'none'
         this.button.style.display = 'none'
-        const radioSubmitButton = document.createElement('button')
-        radioSubmitButton.innerText = 'submit Answer'
-        this.container.appendChild(radioSubmitButton)
 
         for (const key in respObj.alternatives) {
-          const radiobox = document.createElement('input')
-          radiobox.type = 'radio'
-          radiobox.name = 'answer'
-          radiobox.value = respObj.alternatives.key
-          this.container.appendChild(radiobox)
-          const label = document.createElement('label')
-          label.innerText = respObj.alternatives[key]
-          this.container.appendChild(label)
+          const button = document.createElement('button')
+          button.innerText = respObj.alternatives[key]
+          button.addEventListener('click', () => {
+            this.sendAnswer(key)
+          })
+          this.questionButtons.appendChild(button)
         }
       }
     }
@@ -66,7 +68,7 @@ customElements.define('quiz-question',
         },
         body: JSON.stringify({ answer: theAnswer })
       })
-    
+
       const postAnswerObj = await postAnswer.json()
       console.log(postAnswerObj)
       this.nextURL = postAnswerObj.nextURL
