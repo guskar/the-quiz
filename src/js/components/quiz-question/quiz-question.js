@@ -9,13 +9,14 @@ template.innerHTML = `
   <input id="questInput" type="text">
   <button>Submit Answer</button>
   <div id = "questionButtons"></div>
+  <my-counter></my-counter>
 </div>
 
 `
 
 customElements.define('quiz-question',
   class extends HTMLElement {
-
+   
     nextURL = 'https://courselab.lnu.se/quiz/question/1'
 
 
@@ -30,8 +31,8 @@ customElements.define('quiz-question',
       this.message = this.shadowRoot.querySelector('#messageH2')
       this.input = this.shadowRoot.querySelector('#questInput')
       this.container = this.shadowRoot.querySelector('#container')
-      this.form = this.shadowRoot.querySelector('form')
       this.questionButtons = this.shadowRoot.querySelector('#questionButtons')
+      this.counter = this.shadowRoot.querySelector('my-counter')
     }
 
     async getQuestion () {
@@ -52,12 +53,14 @@ customElements.define('quiz-question',
         for (const key in respObj.alternatives) {
           const button = document.createElement('button')
           button.innerText = respObj.alternatives[key]
-          button.addEventListener('click', () => {
+          button.addEventListener('click', (event) => {
             this.sendAnswer(key)
           })
           this.questionButtons.appendChild(button)
         }
       }
+      this.counter.setCount(respObj.limit)
+      this.counter.startCountdown()
     }
 
     async sendAnswer (theAnswer) {
@@ -68,11 +71,11 @@ customElements.define('quiz-question',
         },
         body: JSON.stringify({ answer: theAnswer })
       })
-
       const postAnswerObj = await postAnswer.json()
       console.log(postAnswerObj)
       this.nextURL = postAnswerObj.nextURL
       this.message.innerText = postAnswerObj.message
+      this.counter.clearCountdown()
       this.getQuestion()
     }
 
@@ -86,9 +89,14 @@ customElements.define('quiz-question',
 
     connectedCallback () {
       this.getQuestion()
-      this.button.addEventListener('click', () => {
+      this.button.addEventListener('click', (event) => {
         const value = this.input.value
         this.sendAnswer(value)
+      })
+      this.counter.addEventListener('zero', () => {
+        this.counter.clearCountdown()
+        this.message.innerText = 'GAME OVER'
+        this.quest.innerText = 'Better luck next time!'
       })
     }
   })

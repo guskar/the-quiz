@@ -6,40 +6,44 @@ template.innerHTML = `
 `
 
 customElements.define('my-counter',
-class extends HTMLElement {
-
+  class extends HTMLElement {
+    count
     constructor() {
       super()
-
-      this.count = 20
 
       this.attachShadow({ mode: 'open' })
       this.shadowRoot.appendChild(template.content.cloneNode(true))
       this.counter = this.shadowRoot.querySelector('h1')
     }
 
-    static get observedAttributes () {
+    static get observedAttributes() {
 
     }
 
-    attributeChangedCallback (name, oldValue, newValue) {
-        
-       
+    attributeChangedCallback(name, oldValue, newValue) {
+
+
     }
 
-    connectedCallback () {
-      this.counter.innerText = this.count
-      this.startCountdown()
+    connectedCallback() {
+
     }
 
-    startCountdown () {
+    setCount(limit = 20) {
+      this.count = limit
+    }
+
+    startCountdown() {
       this.intervalID = setTimeout(() => {
         this.counter.innerText = this.count--
         this.startCountdown()
       }, 1000)
+      if (this.count === -1) {
+        this.dispatchEvent(new window.CustomEvent('zero'))
+      }
     }
 
-    clearCountdown () {
+    clearCountdown() {
       clearTimeout(this.intervalID)
     }
   })
