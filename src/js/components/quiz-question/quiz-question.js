@@ -71,7 +71,17 @@ customElements.define('quiz-question',
         },
         body: JSON.stringify({ answer: theAnswer })
       })
+        console.log(postAnswer)
+    
       const postAnswerObj = await postAnswer.json()
+      if (postAnswer.status === 400) {
+        this.quest.innerText = 'GAME OVER'
+        console.log('hej')
+      }
+      if (!postAnswerObj.nextURL && postAnswer.status === 200) {
+        this.quest.innerText = 'CONGRATS! All questions answered and your score is ?'
+      }
+      
       console.log(postAnswerObj)
       this.nextURL = postAnswerObj.nextURL
       this.message.innerText = postAnswerObj.message
@@ -93,7 +103,7 @@ customElements.define('quiz-question',
         const value = this.input.value
         this.sendAnswer(value)
       })
-      this.counter.addEventListener('zero', () => {
+      this.counter.addEventListener('zero', (event) => {
         this.counter.clearCountdown()
         this.message.innerText = 'GAME OVER'
         this.quest.innerText = 'Better luck next time!'
