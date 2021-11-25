@@ -36,17 +36,21 @@ customElements.define('my-counter',
 
     startCountdown() {
       this.timeoutID = setTimeout(() => {
-        this.counter.innerText = this.count--
+        this.counter.innerText = --this.count
+        if (this.count === 0) {
+          this.dispatchEvent(new window.CustomEvent('zero'))
+          console.log('hej')
+          clearTimeout(this.timeoutID)
+          return
+        }
+        if (this.count <= 4) {
+          this.counter.style.color = 'red'
+        } else {
+          this.counter.style.color = 'black'
+        }
         this.startCountdown()
       }, 1000)
-      if (this.count === -1) {
-        this.dispatchEvent(new window.CustomEvent('zero'))
-      }
-      if (this.count <= 4) {
-        this.counter.style.color = 'red'
-      } else {
-        this.counter.style.color = 'black'
-      }
+      
     }
 
     clearCountdown() {
