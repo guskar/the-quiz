@@ -9,6 +9,7 @@ customElements.define('my-counter',
   class extends HTMLElement {
     totalTimeLeft = 0
     count
+    score = 0
     constructor() {
       super()
 
@@ -39,7 +40,6 @@ customElements.define('my-counter',
         this.counter.innerText = --this.count
         if (this.count === 0) {
           this.dispatchEvent(new window.CustomEvent('zero'))
-          console.log('hej')
           clearTimeout(this.timeoutID)
           return
         }
@@ -48,13 +48,12 @@ customElements.define('my-counter',
         } else {
           this.counter.style.color = 'black'
         }
+        this.score++
         this.startCountdown()
       }, 1000)
-      
     }
 
     clearCountdown() {
-      this.totalTimeLeft += this.count
       clearTimeout(this.timeoutID)
     }
   })

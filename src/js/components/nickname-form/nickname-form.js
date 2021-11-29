@@ -5,9 +5,9 @@
 const template = document.createElement('template')
 template.innerHTML = `
 <div id="container">
-  <label>Please choose a nickname and press Submit to start the game</label>
+  <label>Please choose a nickname and press Start Game</label>
   <input type="text">
-  <button>Submit</button>
+  <button>Start Game</button>
   <h2><h2>
 </div>
  

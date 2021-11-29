@@ -22,7 +22,7 @@ customElements.define('high-score',
       this.shadowRoot.appendChild(template.content.cloneNode(true))
 
       this.ol = this.shadowRoot.querySelector('#highscoreList')
-      this.addEventListener('highscoreUpdated', (event) => this.updateHighscoreList())
+      //this.addEventListener('updated', (event) => this.updateHighscoreList())
     }
 
     static get observedAttributes() {
@@ -39,12 +39,11 @@ customElements.define('high-score',
 
     updateHighscoreList () {
       console.log('hej')
-      this.highscoreElements.push(JSON.parse(localStorage.getItem('userName')).name)
+      this.highscoreElements.push(JSON.parse(localStorage.getItem('highscore')).name)
       for (let i = 0; i < this.highscoreElements.length; i++) {
         const highscoreElement = document.createElement('li')
         highscoreElement.innerText = this.highscoreElements[i]
         this.ol.appendChild(highscoreElement)
       }
-     
     }
   })
