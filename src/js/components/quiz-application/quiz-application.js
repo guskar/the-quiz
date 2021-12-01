@@ -40,10 +40,10 @@ template.innerHTML = `
   <nickname-form id="nickname"></nickname-form>   
   <h2 id="messageH2"></h2>
   <h2 id="questionH2"></h2>
+  <my-counter id="counter"></my-counter>
   <input id="questInput" type="text">
   <form id="multiChoiceForm"></form>    
   <button>Submit Answer</button>
-  <my-counter id="counter"></my-counter>
   <slot></slot>
   
 </div>
