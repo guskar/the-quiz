@@ -1,7 +1,11 @@
 
+/**
+ * The nickname-form web component module.
+ *
+ * @author Gustav Karlberg <gk222iv@student.lnu.se>
+ */
 
-
-
+// Define template
 const template = document.createElement('template')
 template.innerHTML = `
 <div id="container">
@@ -14,16 +18,21 @@ template.innerHTML = `
 `
 
 customElements.define('nickname-form',
+/**
+ * Represents a quiz-application element.
+ */
   class extends HTMLElement {
-
-    nameInput
-    userNickname
-
-    constructor() {
+    /**
+     * Creates an instance of the current type.
+     */
+    constructor () {
       super()
 
       this.attachShadow({ mode: 'open' })
       this.shadowRoot.appendChild(template.content.cloneNode(true))
+
+      this.nameInput = ''
+      this.userNickname = ''
 
       this.nicknameInput = this.shadowRoot.querySelector('input')
       this.namelabel = this.shadowRoot.querySelector('label')
@@ -36,18 +45,5 @@ customElements.define('nickname-form',
         this.userNickname = this.nicknameInput.value
         this.h2.innerText = `Welcome ${this.userNickname}! Let´s play!`
       })
-    }
-
-    static get observedAttributes() {
-
-    }
-
-    attributeChangedCallback(name, oldValue, newValue) {
-
-
-    }
-
-    connectedCallback() {
-
     }
   })

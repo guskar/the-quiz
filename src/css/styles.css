@@ -1,3 +1,5 @@
 body {
-	background: #ffffff;
+	background-color: black;
+	display: grid;
+	justify-items: center;
 }

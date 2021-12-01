@@ -1,27 +1,65 @@
+
+/**
+ * The quiz-application web component module.
+ *
+ * @author Gustav Karlberg <gk222iv@student.lnu.se>
+ */
+
 import '../nickname-form/index.js'
 import '../my-counter/index.js'
 
+// Define template.
 const template = document.createElement('template')
 template.innerHTML = `
+<style>
+  #container{
+    font-family: 'Roboto', sans-serif;
+    font-family: 'Source Sans Pro', sans-serif;
+    width: 600px;
+    height: auto;
+    border: .3px solid black;
+    display: grid;
+    padding: 2em;
+    background-color: white;
+    }
+    #nickname{
+      display: grid;
+      font-size: 25px;
+    }
+
+  #multiChoiceForm{
+    display: block;
+  }
+  #counter{
+    
+  }
+    
+</style>
 <div id="container">
+  <h1>The Quiz</h1>
   <nickname-form id="nickname"></nickname-form>   
   <h2 id="messageH2"></h2>
   <h2 id="questionH2"></h2>
   <input id="questInput" type="text">
   <form id="multiChoiceForm"></form>    
   <button>Submit Answer</button>
-  <my-counter></my-counter>
-  <ol id="highscorelist"></ol>
+  <my-counter id="counter"></my-counter>
+  <slot></slot>
   
 </div>
 `
 
 customElements.define('quiz-application',
+  /**
+   * Represents a quiz-application element.
+   */
   class extends HTMLElement {
     nextURL = 'https://courselab.lnu.se/quiz/question/1'
-    highscoreList = []
 
-    constructor() {
+    /**
+     * Creates an instance of the current type.
+     */
+    constructor () {
       super()
 
       this.attachShadow({ mode: 'open' })
@@ -37,25 +75,25 @@ customElements.define('quiz-application',
       this.nicknameForm = this.shadowRoot.querySelector('#nickname')
       this.ol = this.shadowRoot.querySelector('#highscorelist')
 
+      // Add listeners.
       this.nicknameForm.addEventListener('start', (event) => this.startGame())
       this.button.addEventListener('click', (event) => this.submitRadiobutton())
       this.input.addEventListener('keypress', (event) => this.useEnterToSubmit(event))
       this.counter.addEventListener('zero', (event) => this.gameOver())
     }
 
-    static get observedAttributes() {
-
+    /**
+     * Called when the element is added to the DOM.
+     */
+    connectedCallback () {
+      this.highscorelist = localStorage.getItem('highscore') ? JSON.parse(localStorage.getItem('highscore')) : []
     }
 
-    attributeChangedCallback(name, oldValue, newValue) {
-
-    }
-
-    connectedCallback() {
-
-    }
-
-    async getQuestion() {
+    /**
+     * Fetches the next question and creates radiobuttons i the answer has alternatives. It also
+     * sends the limit to the counter.
+     */
+    async getQuestion () {
       const resp = await window.fetch(this.nextURL)
       const respObj = await resp.json()
       this.quest.innerText = respObj.question
@@ -83,11 +121,19 @@ customElements.define('quiz-application',
           this.multiChoiceForm.appendChild(radioButton)
           this.multiChoiceForm.appendChild(label)
         }
+      } if (!respObj.limit) {
+        this.counter.setAttribute('limit', 20)
+      } else {
+        this.counter.setAttribute('limit', respObj.limit)
       }
-      this.counter.setCount(respObj.limit)
     }
 
-    async sendAnswer(theAnswer) {
+    /**
+     * Posts the answer sent from the input or radiobuttons and invokes the gameOver and allQuestionsAnswered functions.
+     *
+     * @param {string} theAnswer A  string representing the users answer.
+     */
+    async sendAnswer (theAnswer) {
       const postAnswer = await window.fetch(this.nextURL, {
         method: 'POST',
         headers: {
@@ -114,7 +160,10 @@ customElements.define('quiz-application',
       this.getQuestion()
     }
 
-    submitRadiobutton() {
+    /**
+     * Sends the value from the checked radiobutton as the users answer.
+     */
+    submitRadiobutton () {
       const radioChecked = this.shadowRoot.querySelector('input[name="multichoice"]:checked')
       if (radioChecked) {
         const value = radioChecked.id
@@ -125,51 +174,72 @@ customElements.define('quiz-application',
       }
     }
 
-    useEnterToSubmit(event) {
+    /**
+     * Sends the answer from the input if user uses enter to submit.
+     *
+     * @param {object} event and object that represents the current event.
+     */
+    useEnterToSubmit (event) {
       if (event.key === 'Enter') {
         const value = this.input.value
         this.sendAnswer(value)
       }
     }
 
-    storeResultAndNickname(nickname, score) {
+    /**
+     * Stores the user information and score to local storage.
+     *
+     * @param {string} nickname  A string that represents the user nickname.
+     * @param  {number} score  A number that represents the users score.
+     */
+    storeResultAndNickname (nickname, score) {
       const nameAndScore = { name: nickname, score: score }
-      this.highscoreList.push(nameAndScore)
-      localStorage.setItem('highscore', JSON.stringify(this.highscoreList))
-      this.highscore = JSON.parse(localStorage.getItem('highscore'))
-      this.highscore.forEach(element => {
-        const highscoreElement = document.createElement('li')
-        highscoreElement.innerText = `Name: ${element.name}, Score: ${element.score}`
-        this.ol.appendChild(highscoreElement)
-      })
+      this.highscorelist.push(nameAndScore)
+      this.highscorelist.sort((a, b) => a.score - b.score)
+      console.log(this.highscorelist)
+      const topFive = this.highscorelist.slice(0, 5)
+      localStorage.setItem('highscore', JSON.stringify(topFive))
       this.dispatchEvent(new window.CustomEvent('updated'))
     }
 
-    startGame() {
+    /**
+     * Starts the game and the counter.
+     */
+    startGame () {
       this.getQuestion()
       this.counter.startCountdown()
     }
 
-    gameOver() {
+    /**
+     * If the user dont answer in time or sends the wrong answer this function presents a Game over text prepares everything
+     * to be ready for the next game.
+     */
+    gameOver () {
       this.counter.clearCountdown()
       this.nextURL = 'https://courselab.lnu.se/quiz/question/1'
       this.message.innerText = 'GAME OVER'
-      this.quest.innerText = 'Better luck next time!'
+      this.quest.innerText = 'Better luck next time! \n press Start Game to play again'
       this.input.style.display = 'none'
       this.button.style.display = 'none'
       this.counter.style.display = 'none'
+      this.multiChoiceForm.innerHTML = ''
       this.counter.score = 0
     }
 
-    allQuestionsAnswered() {
+    /**
+     * If the user answer all the questions this function presents a text and handles everything to start a new game
+     * and sends informatione to be stored.
+     */
+    allQuestionsAnswered () {
       this.counter.clearCountdown()
       this.counter.style.display = 'none'
       this.multiChoiceForm.innerHTML = ''
       this.nicknameForm.textContent = ''
+      this.message.innerText = ''
       this.button.style.display = 'none'
       this.nextURL = 'https://courselab.lnu.se/quiz/question/1'
 
-      this.quest.innerText = `CONGRATS ${this.nicknameForm.userNickname}! All questions answered and your score is: ${this.counter.score}`
+      this.quest.innerText = `CONGRATS ${this.nicknameForm.userNickname}! All questions answered and your score is: ${this.counter.score}. Please press Start Game to play again!`
       this.storeResultAndNickname(this.nicknameForm.userNickname, this.counter.score)
       this.counter.score = 0
     }

@@ -1,4 +1,9 @@
 
+/**
+ * The my-counter web component module.
+ *
+ * @author Gustav Karlberg <gk222iv@student.lnu.se>
+ */
 
 const template = document.createElement('template')
 template.innerHTML = `
@@ -6,36 +11,66 @@ template.innerHTML = `
 `
 
 customElements.define('my-counter',
+  /**
+   * Represents a my-counter element.
+   */
   class extends HTMLElement {
-    totalTimeLeft = 0
-    count
-    score = 0
-    constructor() {
+    /**
+     * Creates an instance of the current type.
+     */
+    constructor () {
       super()
 
       this.attachShadow({ mode: 'open' })
       this.shadowRoot.appendChild(template.content.cloneNode(true))
+
+      this.count = 0
+      this.score = 0
       this.counter = this.shadowRoot.querySelector('h1')
     }
 
-    static get observedAttributes() {
-
+    /**
+     * Watches the attribute "limit" for changes on the element.
+     *
+     * @returns {string[]} A string array of attributes to monitor.
+     */
+    static get observedAttributes () {
+      return ['limit']
     }
 
-    attributeChangedCallback(name, oldValue, newValue) {
-
-
+    /**
+     * Called by the browser engine when an attribute changes.
+     *
+     * @param {string} name of the attribute.
+     * @param {any} oldValue the old attribute value.
+     * @param {any} newValue the new attribute value.
+     */
+    attributeChangedCallback (name, oldValue, newValue) {
+      if (name === 'limit') {
+        this.count = newValue
+      }
     }
 
-    connectedCallback() {
-
+    /**
+     * Called when the element is added to the DOM.
+     */
+    connectedCallback () {
+      this.counter.innerText = this.count
     }
 
-    setCount(limit = 20) {
-      this.count = limit
-    }
+    /**
+     * Sets the limit on the counter.
+     *
+     * @param {number} limit A number that represents the limit of the counter.
+     */
+    // setCount (limit = 20) {
+    //   this.count = limit
+    // }
 
-    startCountdown() {
+    /**
+     * Starts the counter and dispatches the zero event.
+     */
+    startCountdown () {
       this.timeoutID = setTimeout(() => {
         this.counter.innerText = --this.count
         if (this.count === 0) {
@@ -53,7 +88,10 @@ customElements.define('my-counter',
       }, 1000)
     }
 
-    clearCountdown() {
+    /**
+     * Clears Timeout.
+     */
+    clearCountdown () {
       clearTimeout(this.timeoutID)
     }
   })
