@@ -22,16 +22,26 @@ template.innerHTML = `
     padding: 2em;
     background-color: white;
     }
-    #nickname{
+
+    #nickname {
       display: grid;
       font-size: 25px;
     }
 
-  #multiChoiceForm{
+  #multiChoiceForm {
     display: block;
   }
-  #counter{
-    
+
+  #counter {
+    font-size: 30px;
+  }
+
+  #submitBtn {
+    height: 40px;
+  }
+
+  #questInput {
+    height: 40px;
   }
     
 </style>
@@ -43,7 +53,7 @@ template.innerHTML = `
   <my-counter id="counter"></my-counter>
   <input id="questInput" type="text">
   <form id="multiChoiceForm"></form>    
-  <button>Submit Answer</button>
+  <button id="submitBtn">Submit Answer</button>
   <slot></slot>
   
 </div>
@@ -77,7 +87,7 @@ customElements.define('quiz-application',
 
       // Add listeners.
       this.nicknameForm.addEventListener('start', (event) => this.startGame())
-      this.button.addEventListener('click', (event) => this.submitRadiobutton())
+      this.button.addEventListener('click', (event) => this.submitAnswer())
       this.input.addEventListener('keypress', (event) => this.useEnterToSubmit(event))
       this.counter.addEventListener('zero', (event) => this.gameOver())
     }
@@ -157,13 +167,17 @@ customElements.define('quiz-application',
 
       this.nextURL = postAnswerObj.nextURL
       this.message.innerText = postAnswerObj.message
-      this.getQuestion()
+      try {
+        this.getQuestion()
+      } catch (error) {
+        console.log(error.message)
+      }
     }
 
     /**
      * Sends the value from the checked radiobutton as the users answer.
      */
-    submitRadiobutton () {
+    submitAnswer () {
       const radioChecked = this.shadowRoot.querySelector('input[name="multichoice"]:checked')
       if (radioChecked) {
         const value = radioChecked.id
