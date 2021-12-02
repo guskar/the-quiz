@@ -100,7 +100,7 @@ customElements.define('quiz-application',
     }
 
     /**
-     * Fetches the next question and creates radiobuttons i the answer has alternatives. It also
+     * Fetches the next question and creates radiobuttons if the answer has alternatives. It also
      * sends the limit to the counter.
      */
     async getQuestion () {
@@ -178,13 +178,17 @@ customElements.define('quiz-application',
      * Sends the value from the checked radiobutton as the users answer.
      */
     submitAnswer () {
-      const radioChecked = this.shadowRoot.querySelector('input[name="multichoice"]:checked')
-      if (radioChecked) {
-        const value = radioChecked.id
-        this.sendAnswer(value)
-      } else {
-        const value = this.input.value
-        this.sendAnswer(value)
+      try {
+        const radioChecked = this.shadowRoot.querySelector('input[name="multichoice"]:checked')
+        if (radioChecked) {
+          const value = radioChecked.id
+          this.sendAnswer(value)
+        } else {
+          const value = this.input.value
+          this.sendAnswer(value)
+        }
+      } catch (error) {
+        console.log('error.message')
       }
     }
 
@@ -194,9 +198,13 @@ customElements.define('quiz-application',
      * @param {object} event and object that represents the current event.
      */
     useEnterToSubmit (event) {
-      if (event.key === 'Enter') {
-        const value = this.input.value
-        this.sendAnswer(value)
+      try {
+        if (event.key === 'Enter') {
+          const value = this.input.value
+          this.sendAnswer(value)
+        }
+      } catch (error) {
+        console.log(error.message)
       }
     }
 
